@@ -1,31 +1,41 @@
 import './css/common.css';
-import template from './template/countries-card.hbs';
+
+import { debounce } from 'debounce';
+
+import countryContainer from './template/country-list.hbs';
+import countryCard from './template/countries-card.hbs';
+
 import getRefs from './get-refs.js';
-import API from './api-service.js';
+
+import API from './fetchCountries.js';
 
 const refs = getRefs();
 
-refs.searchForm.addEventListener('submit', searchCountries);
+refs.searchForm.addEventListener('input', onSearchCountry);
 
-function searchCountries(e) {
+function onSearchCountry(e) {
   e.preventDefault();
 
-  const target = e.currentTarget;
-  const searchQuery = target.elements.query.value;
-
-  API.getFetch(searchQuery)
-    .then(renderCountry)
-    .catch(onFetchError)
-    .finally(() => {
-      target.reset();
-    });
+  const searchQuery = e.currentTarget;
+  let nameCountry = searchQuery.query.value;
+  const onQueryApa = API.getFetch(nameCountry).then(render).catch(onFetchError);
 }
 
-function renderCountry(country) {
-  const markup = template(country[0]);
-  refs.cardContainer.innerHTML = markup;
+function render(searchQuery) {
+  const card = countryCard(searchQuery[0]);
+
+  if (searchQuery.length > 1) {
+    const limitList = searchQuery.slice(10);
+    createCountriesList(limitList);
+  } else {
+    refs.countryCard.insertAdjacentHTML('beforeend', card);
+  }
+}
+
+function createCountriesList(itemList) {
+  refs.listCountry.insertAdjacentHTML('beforeend', countryContainer(itemList));
 }
 
 function onFetchError(error) {
-  alert('Упс, что-то пошло не так и мы не нашли это Государство');
+  alert('Упс, промахнулись');
 }
