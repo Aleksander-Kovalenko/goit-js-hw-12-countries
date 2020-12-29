@@ -1,41 +1,62 @@
 import './css/common.css';
 
-import { debounce } from 'debounce';
+import '@pnotify/core/dist/BrightTheme.css';
+import '@pnotify/core/dist/PNotify.css';
+import { info, error } from '@pnotify/core';
+
+import debounce from 'lodash.debounce';
 
 import countryContainer from './template/country-list.hbs';
 import countryCard from './template/countries-card.hbs';
 
 import getRefs from './get-refs.js';
-
 import API from './fetchCountries.js';
 
 const refs = getRefs();
 
-refs.searchForm.addEventListener('input', onSearchCountry);
+refs.searchForm.addEventListener('input', debounce(onSearchCountry, 500));
+let searchQuery = '';
 
 function onSearchCountry(e) {
   e.preventDefault();
+  searchQuery = '';
+  searchQuery = e.target.value;
 
-  const searchQuery = e.currentTarget;
-  let nameCountry = searchQuery.query.value;
-  const onQueryApa = API.getFetch(nameCountry).then(render).catch(onFetchError);
-}
-
-function render(searchQuery) {
-  const card = countryCard(searchQuery[0]);
-
-  if (searchQuery.length > 1) {
-    const limitList = searchQuery.slice(10);
-    createCountriesList(limitList);
+  if (!searchQuery) {
+    refs.cardBox.innerHTML = '';
   } else {
-    refs.countryCard.insertAdjacentHTML('beforeend', card);
+    API.getFetch(searchQuery).then(render).catch(onFetchError);
   }
 }
 
-function createCountriesList(itemList) {
-  refs.listCountry.insertAdjacentHTML('beforeend', countryContainer(itemList));
+function render(fetchQuery) {
+  if ((fetchQuery.length = 0 || fetchQuery.length > 10)) {
+    error({
+      text: 'Уточните свой поиск!',
+      delay: 2000,
+    });
+  } else if (fetchQuery.length >= 2 && fetchQuery.length <= 10) {
+    createCountriesList(refs.listCountry, countryContainer, fetchQuery);
+  } else if (fetchQuery.length === 1) {
+    createCountriesList(refs.countryCard, countryCard, fetchQuery[0]);
+  } else {
+    refs.listCountry.innerHTML = '';
+    info({
+      text: 'Не удалось найти',
+      delay: 2000,
+    });
+  }
+}
+
+function createCountriesList(getRef, template, query) {
+  if (getRef === refs.countryCard) {
+    refs.listCountry.innerHTML = '';
+  } else {
+    refs.countryCard.innerHTML = '';
+  }
+  getRef.insertAdjacentHTML('beforeend', template(query));
 }
 
 function onFetchError(error) {
-  alert('Упс, промахнулись');
+  console.log(error);
 }
