@@ -24,6 +24,7 @@ function onSearchCountry(e) {
 
   if (!searchQuery) {
     refs.cardBox.innerHTML = '';
+    return;
   } else {
     API.getFetch(searchQuery).then(render).catch(onFetchError);
   }
@@ -54,7 +55,8 @@ function createCountriesList(getRef, template, query) {
   } else {
     refs.countryCard.innerHTML = '';
   }
-  getRef.insertAdjacentHTML('beforeend', template(query));
+  getRef.innerHTML = template(query);
+  // getRef.insertAdjacentHTML('beforeend', template(query));
 }
 
 function onFetchError(error) {
