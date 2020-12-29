@@ -30,7 +30,7 @@ function onSearchCountry(e) {
 }
 
 function render(fetchQuery) {
-  if ((fetchQuery.length = 0 || fetchQuery.length > 10)) {
+  if (fetchQuery.length === 0 || fetchQuery.length > 10) {
     error({
       text: 'Уточните свой поиск!',
       delay: 2000,
