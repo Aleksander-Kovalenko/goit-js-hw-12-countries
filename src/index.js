@@ -1,4 +1,4 @@
-import './styles.css';
+import './css/styles.css';
 
 // NOTIFYCATION
 import '@pnotify/core/dist/BrightTheme.css';
