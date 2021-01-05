@@ -1,64 +1,69 @@
-import './css/common.css';
+import './styles.css';
 
+// NOTIFYCATION
 import '@pnotify/core/dist/BrightTheme.css';
 import '@pnotify/core/dist/PNotify.css';
 import { info, error } from '@pnotify/core';
 
-import debounce from 'lodash.debounce';
+// LODASH
+import { debounce } from 'debounce';
 
-import countryContainer from './template/country-list.hbs';
-import countryCard from './template/countries-card.hbs';
+// BOOTSTRAP
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
 
-import getRefs from './get-refs.js';
-import API from './fetchCountries.js';
+// TEMPLATE
+import templateList from './template/list.hbs';
+import templateCard from './template/card.hbs';
+
+// REFERENCES
+import getRefs from './referencesHTML.js';
+import CountriesServer from './fetchCountries.js';
 
 const refs = getRefs();
+const API = new CountriesServer();
 
-refs.searchForm.addEventListener('input', debounce(onSearchCountry, 500));
-let searchQuery = '';
+refs.input.addEventListener('input', debounce(onSearch, 500));
+let query = '';
 
-function onSearchCountry(e) {
+function onSearch(e) {
   e.preventDefault();
-  searchQuery = '';
-  searchQuery = e.target.value;
+  query = '';
+  query = e.target.value;
 
-  if (!searchQuery) {
-    refs.cardBox.innerHTML = '';
-    return;
-  } else {
-    API.getFetch(searchQuery).then(render).catch(onFetchError);
+  if (!query) {
+    return clearRenderList();
   }
+  API.fetchCountries(query).then(render).catch(onHandleError);
 }
 
-function render(fetchQuery) {
-  if (fetchQuery.length === 0 || fetchQuery.length > 10) {
-    error({
-      text: 'Уточните свой поиск!',
-      delay: 2000,
-    });
-  } else if (fetchQuery.length >= 2 && fetchQuery.length <= 10) {
-    createCountriesList(refs.listCountry, countryContainer, fetchQuery);
-  } else if (fetchQuery.length === 1) {
-    createCountriesList(refs.countryCard, countryCard, fetchQuery[0]);
-  } else {
-    refs.listCountry.innerHTML = '';
+function render(itemList) {
+  if (itemList.length === 0 || itemList.length > 10) {
+    clearRenderList();
     info({
-      text: 'Не удалось найти',
+      text: 'Че такой скупой на буквы',
+      delay: 2000,
+    });
+  } else if (itemList.length > 1 && itemList.length <= 10) {
+    refs.countryCard.innerHTML = '';
+    refs.countryList.innerHTML = templateList(itemList);
+  } else if (itemList.length === 1) {
+    refs.countryList.innerHTML = '';
+    refs.countryCard.innerHTML = templateCard(itemList[0]);
+  } else {
+    refs.countryList.innerHTML = '';
+    error({
+      text: 'Угомони свою фантазию',
       delay: 2000,
     });
   }
 }
 
-function createCountriesList(getRef, template, query) {
-  if (getRef === refs.countryCard) {
-    refs.listCountry.innerHTML = '';
-  } else {
-    refs.countryCard.innerHTML = '';
-  }
-  getRef.innerHTML = template(query);
-  // getRef.insertAdjacentHTML('beforeend', template(query));
+function clearRenderList() {
+  refs.countryList.innerHTML = '';
+  refs.countryCard.innerHTML = '';
 }
 
-function onFetchError(error) {
+function onHandleError(error) {
   console.log(error);
 }

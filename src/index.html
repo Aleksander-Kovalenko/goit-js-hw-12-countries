@@ -4,18 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Webpack Starter Kit</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <title>Search Country</title>
   </head>
-  <body>
-    <form class="form-inline search-form js-search-form" autocomplete="off">
-      <div class="form-group">
-        <input type="text" class="form-control" name="query" />
-      </div>
-    </form>
 
-    <div class="card-box">
-      <div class="js-card-container"></div>
-      <div class="countries-container"></div>
+  <body>
+    <div class="country-box">
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="inputGroup-sizing-default"
+            >Search</span
+          >
+        </div>
+        <input
+          autocomplete="off"
+          type="text"
+          class="form-control"
+          name="query"
+          aria-label="Default"
+          aria-describedby="inputGroup-sizing-default"
+        />
+      </div>
+    </div>
+    <div class="box">
+      <ul class="list-group"></ul>
+      <div class="card-country"></div>
     </div>
   </body>
 </html>

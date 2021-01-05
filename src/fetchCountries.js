@@ -1,9 +1,13 @@
-const BASE_URL = 'https://restcountries.eu/rest/v2/name';
+const BASE_URL = 'https://restcountries.eu';
 
-function getFetch(searchQuery) {
-  return fetch(`${BASE_URL}/${searchQuery}`).then(response => {
-    return response.json();
-  });
+export default class CountryService {
+  constructor() {
+    this.searchQuery = '';
+  }
+
+  fetchCountries(searchQuery) {
+    return fetch(`${BASE_URL}/rest/v2/name/${searchQuery}`).then(response =>
+      response.json(),
+    );
+  }
 }
-
-export default { getFetch };
