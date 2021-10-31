@@ -1,29 +1,32 @@
+import './sass/main';
+
+// HANDLEBARS
 const Handlebars = require('handlebars');
+
+// LODASH
 var debounce = require('lodash.debounce');
 
-const { alert, notice, info, success, error } = require('@pnotify/core');
-
-import './sass/main';
+// TEMPLATE
 import card from './template/cards.hbs';
 import itemList from './template/item-list.hbs';
+
+// NOTIFYCATION
 import '@pnotify/core/dist/BrightTheme.css';
 import '@pnotify/core/dist/PNotify.css';
+const { alert, notice, info, success, error } = require('@pnotify/core');
 
-const BASE_API = 'https://restcountries.com/v2/name';
+// REFERENCES
+import API from './js/fetchCountries.js';
+import getRefs from './js/get-refs.js';
 
-const refs = {
-  inputForm: document.querySelector('.js-input'),
-};
+const refs = getRefs();
+refs.inputForm.addEventListener('input', debounce(onSearchCountry, 500));
 
-refs.inputForm.addEventListener('input', debounce(fetchCountry, 500));
-
-function fetchCountry(e) {
+function onSearchCountry(e) {
   e.preventDefault();
   const value = e.target.value;
 
-  return fetch(`${BASE_API}/${value}`)
-    .then(response => response.json())
-    .then(listCountry);
+  API.fetchCountries(value).then(listCountry).catch(onError);
 }
 
 function paintCard(country) {
@@ -32,14 +35,14 @@ function paintCard(country) {
 }
 
 function listCountry(list) {
-  clear();
+  clearList();
   if (list.status) onError();
   else if (list.length > 10) onInfo();
   else if (list.length === 1) paintCard(list);
   else if (list.length) creatList(list);
 }
 
-function clear() {
+function clearList() {
   document.querySelector('.js-box-card').innerHTML = ' ';
   document.querySelector('.js-country').innerHTML = ' ';
 }
@@ -61,4 +64,8 @@ function onInfo() {
 
 function creatList(list) {
   document.querySelector('.js-country').insertAdjacentHTML('beforeend', itemList({ list }));
+}
+
+function onError(error) {
+  console.log(error);
 }
